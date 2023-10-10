@@ -28,6 +28,7 @@ export default function NewPasswordModal(props: any) {
         onChange={(e) => setName(e.target.value)}
       />
       <TextField
+        style={{ width: 500 }}
         label="value"
         value={value}
         onChange={(e) => setValue(e.target.value)}
