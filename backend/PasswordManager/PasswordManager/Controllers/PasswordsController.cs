@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using PasswordManager.Services;
 
 namespace PasswordManager.Controllers
 {
@@ -11,26 +12,56 @@ namespace PasswordManager.Controllers
     [Route("[controller]")]
     public class PasswordsController : ControllerBase
     {
-        private readonly ILogger<PasswordsController> _logger;
+        readonly ILogger<PasswordsController> logger;
+        readonly PasswordDbContext dbContext;
+        readonly ISecurity security;
 
-        public PasswordsController(ILogger<PasswordsController> logger)
+        public PasswordsController(ILogger<PasswordsController> logger, PasswordDbContext dbContext, ISecurity security)
         {
-            _logger = logger;
+            this.logger = logger;
+            this.dbContext = dbContext;
+            this.security = security;
         }
         
-        // Get all passwords endpoint
+        // Get all passwords metadata endpoint
         [HttpGet]
-        public ActionResult<IEnumerable<PasswordData>> GetPasswords()
+        public ActionResult<IEnumerable<PasswordInfo>> GetPasswords()
         {
-            var passwords = new List<PasswordData> { new("My Password", "secret") };
-            return passwords;
+            var passwords = dbContext.Passwords;
+            var passwordInfo = passwords
+                .Select(p => new PasswordInfo(p.Id, p.Name))
+                .ToArray();
+            return passwordInfo;
+        }
+        
+        // Get single password endpoint
+        [HttpGet("{id}")]
+        public ActionResult<PasswordResponse> GetPassword(long id)
+        {
+            var password = dbContext.Passwords.Find(id);
+            if (password == null)
+            {
+                return NotFound();
+            }
+
+            var decryptedPassword = security.Decrypt(password.EncryptedValue);
+            return new PasswordResponse(password.Id, password.Name, decryptedPassword);
         }
         
         // create a new password endpoint
         [HttpPost]
-        public ActionResult<PasswordData> PostPassword(PasswordData password)
+        public async Task<ActionResult<PasswordInfo>> PostPassword(PasswordPostBody passwordBody)
         {
-            return CreatedAtAction(nameof(GetPasswords), password);
+            var encryptedPassword = security.Encrypt(passwordBody.Value);
+            var newPasswordData = new PasswordStore
+            {
+                Name = passwordBody.Name,
+                EncryptedValue = encryptedPassword,
+            };
+            var newPassword = dbContext.Passwords.Add(newPasswordData);
+            await dbContext.SaveChangesAsync();
+            var response = new PasswordInfo(newPassword.Entity.Id, newPassword.Entity.Name);
+            return CreatedAtAction(nameof(GetPasswords), response);
         }
     }
 }
