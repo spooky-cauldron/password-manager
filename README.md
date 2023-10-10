@@ -49,6 +49,7 @@ Save a new password by clicking the "ADD" button in the top right.
 
 ## OpenAPI
 
-OpenAPI API spec can be viewed at http://localhost:5000/swagger/index.html.
+OpenAPI spec can be viewed at http://localhost:5000/swagger/index.html when running
+the backend service.
 
 ![openapi](/assets/openapi.png)
