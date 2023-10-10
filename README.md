@@ -42,6 +42,8 @@ npm run dev
 Password manager UI will run at `localhost:5173`
 ![password manager](/assets/password-manager.png)
 
+Save a new password by clicking the "ADD" button in the top right.
+
 ![password manager](/assets/new-password.png)
 
 ## OpenAPI
