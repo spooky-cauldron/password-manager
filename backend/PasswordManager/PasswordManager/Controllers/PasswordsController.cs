@@ -36,15 +36,16 @@ namespace PasswordManager.Controllers
         
         // Get single password endpoint
         [HttpGet("{id}")]
-        public ActionResult<PasswordResponse> GetPassword(long id)
+        public async Task<ActionResult<PasswordResponse>> GetPassword(long id)
         {
-            var password = dbContext.Passwords.Find(id);
+            var password = await dbContext.Passwords.FindAsync(id);
             if (password == null)
             {
                 return NotFound();
             }
 
-            var decryptedPassword = security.Decrypt(password.EncryptedValue);
+            logger.LogDebug($"encrypted to decrypt: {password.EncryptedValue}");
+            var decryptedPassword = await security.Decrypt(password.EncryptedValue);
             return new PasswordResponse(password.Id, password.Name, decryptedPassword);
         }
         
@@ -52,10 +53,11 @@ namespace PasswordManager.Controllers
         [HttpPost]
         public async Task<ActionResult<PasswordInfo>> PostPassword(PasswordPostBody passwordBody)
         {
-            var encryptedPassword = security.Encrypt(passwordBody.Value);
+            var redactedName = await security.Redact(passwordBody.Name);
+            var encryptedPassword = await security.Encrypt(passwordBody.Value);
             var newPasswordData = new PasswordStore
             {
-                Name = passwordBody.Name,
+                Name = redactedName,
                 EncryptedValue = encryptedPassword,
             };
             var newPassword = dbContext.Passwords.Add(newPasswordData);

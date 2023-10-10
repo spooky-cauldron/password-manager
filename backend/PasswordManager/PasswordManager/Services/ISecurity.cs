@@ -1,8 +1,10 @@
+using System.Threading.Tasks;
+
 namespace PasswordManager.Services;
 
 public interface ISecurity
 {
-    public string Encrypt(string text);
-    public string Decrypt(string cyphertext);
-    public string Redact(string text);
+    public Task<string> Encrypt(string text);
+    public Task<string> Decrypt(string cyphertext);
+    public Task<string> Redact(string text);
 }
