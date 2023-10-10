@@ -39,7 +39,8 @@ npm install
 npm run dev
 ```
 
-Password manager UI will run at `localhost:5173`
+Password manager UI will run at `localhost:5173`. Clicking the COPY button will
+get the decrypted password and save it to your clipboard.
 ![password manager](/assets/password-manager.png)
 
 Save a new password by clicking the "ADD" button in the top right.
