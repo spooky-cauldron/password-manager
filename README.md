@@ -17,9 +17,16 @@ dotnet run
 Backend service will run at `localhost:5000`.
 Swagger API spec can be viewed at http://localhost:5000/swagger/index.html.
 
+![openapi](/assets/openapi.png)
+
 ## Run Frontend
 
 ```
 cd frontend/password-manager
 npm run dev
 ```
+
+Password manager ui will run at `localhost:5173`
+![password manager](/assets/password-manager.png)
+
+![password manager](/assets/new-password.png)
